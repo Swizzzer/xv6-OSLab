@@ -183,6 +183,7 @@ uchar initcode[] = {0x17, 0x05, 0x00, 0x00, 0x13, 0x05, 0x45, 0x02, 0x97, 0x05, 
 
 // Set up first user process.
 void userinit(void) {
+  printf("[210110325] enter userinit\n");
   struct proc *p;
 
   p = allocproc();
@@ -198,6 +199,7 @@ void userinit(void) {
   p->trapframe->sp = PGSIZE;  // user stack pointer
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
+  printf("[210110325] copy initcode to first user process\n");
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
