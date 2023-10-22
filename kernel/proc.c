@@ -295,6 +295,7 @@ void reparent(struct proc *p) {
 // An exited process remains in the zombie state
 // until its parent calls wait().
 void exit(int status) {
+  static char *statesList[]={[UNUSED]"unused",[SLEEPING]"sleeping",[RUNNING]"running",[RUNNABLE]"runnable",[ZOMBIE]"zombie"};
   struct proc *p = myproc();
 
   if (p == initproc) panic("init exiting");
@@ -329,7 +330,21 @@ void exit(int status) {
   // to a dead or wrong process; proc structs are never re-allocated
   // as anything else.
   acquire(&p->lock);
+
+  // fetch parents' information
   struct proc *original_parent = p->parent;
+  exit_info("proc %d exit, parent pid %d, name %s, state %s\n",p->pid, original_parent->pid, original_parent->name, statesList[original_parent->state]);
+  // fetch childrens' information
+  struct proc *pp;
+  int child_num=0;
+  for(pp=proc;pp < &proc[NPROC]; pp++){
+    if(pp->parent==p){
+      acquire(&pp->lock);
+      exit_info("proc %d exit, child %d, pid %d, name %s, state %s\n",p->pid,child_num,pp->pid, pp->name, statesList[pp->state]);
+      release(&pp->lock);
+      child_num++;
+    }
+  }
   release(&p->lock);
 
   // we need the parent's lock in order to wake it up from wait().
