@@ -83,3 +83,9 @@ uint64 sys_rename(void) {
   p->name[len] = '\0';
   return 0;
 }
+uint64 sys_yield(void){
+  struct proc *p = myproc();
+  printf("start to yield, user pc %p\n", p->trapframe->epc); //fetch PC
+  yield();
+  return 0;
+}
